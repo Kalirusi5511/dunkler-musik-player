@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Düsterer Musik-Player</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: black;
+    }
+
+    /* Video-Hintergrund */
+    #bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+      filter: brightness(0.3) contrast(1.2);
+    }
+
+    /* Audio-Player Buttons */
+    #audio-player {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+    }
+
+    button {
+      background: rgba(50,50,50,0.7);
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background: rgba(100,0,0,0.7);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hintergrund-Video -->
+  <video id="bg-video" autoplay muted loop></video>
+
+  <!-- Audio-Player -->
+  <div id="audio-player">
+    <button onclick="playAudio()">Play</button>
+    <button onclick="pauseAudio()">Pause</button>
+  </div>
+
+  <audio id="music" src="epic-battle-music.mp3"></audio>
+
+  <script>
+    const audio = document.getElementById('music');
+    const video = document.getElementById('bg-video');
+
+    function playAudio() {
+      audio.play();
+    }
+
+    function pauseAudio() {
+      audio.pause();
+    }
+
+    // Canvas für düsteres Hintergrundvideo
+    const canvas = document.createElement('canvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext('2d');
+
+    function generateFrame() {
+      // Dunkler Hintergrund
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Zufällige düstere Linien / Partikel
+      for (let i = 0; i < 70; i++) {
+        ctx.strokeStyle = `rgba(${Math.floor(Math.random()*50)},0,0,0.5)`;
+        ctx.beginPath();
+        ctx.moveTo(Math.random()*canvas.width, Math.random()*canvas.height);
+        ctx.lineTo(Math.random()*canvas.width, Math.random()*canvas.height);
+        ctx.stroke();
+      }
+
+      // Canvas als Video-Stream setzen
+      video.srcObject = canvas.captureStream(30); // 30 FPS
+      requestAnimationFrame(generateFrame);
+    }
+
+    generateFrame();
+
+    // Fenstergröße dynamisch anpassen
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+
+</body>
+</html>
