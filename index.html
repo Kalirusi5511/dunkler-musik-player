@@ -12,19 +12,15 @@
       background: black;
     }
 
-    /* Video-Hintergrund */
-    #bg-video {
+    #bg-canvas {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
       z-index: -1;
-      filter: brightness(0.3) contrast(1.2);
     }
 
-    /* Audio-Player Buttons */
     #audio-player {
       position: absolute;
       bottom: 20px;
@@ -52,10 +48,8 @@
 </head>
 <body>
 
-  <!-- Hintergrund-Video -->
-  <video id="bg-video" autoplay muted loop></video>
+  <canvas id="bg-canvas"></canvas>
 
-  <!-- Audio-Player -->
   <div id="audio-player">
     <button onclick="playAudio()">Play</button>
     <button onclick="pauseAudio()">Pause</button>
@@ -65,7 +59,15 @@
 
   <script>
     const audio = document.getElementById('music');
-    const video = document.getElementById('bg-video');
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
 
     function playAudio() {
       audio.play();
@@ -75,38 +77,24 @@
       audio.pause();
     }
 
-    // Canvas für düsteres Hintergrundvideo
-    const canvas = document.createElement('canvas');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const ctx = canvas.getContext('2d');
-
     function generateFrame() {
-      // Dunkler Hintergrund
-      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      // dunkler Hintergrund
+      ctx.fillStyle = 'rgba(0,0,0,0.4)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Zufällige düstere Linien / Partikel
-      for (let i = 0; i < 70; i++) {
-        ctx.strokeStyle = `rgba(${Math.floor(Math.random()*50)},0,0,0.5)`;
+      // Partikel/Lines
+      for (let i = 0; i < 50; i++) {
+        ctx.strokeStyle = `rgba(${Math.random()*40},0,0,0.6)`;
         ctx.beginPath();
-        ctx.moveTo(Math.random()*canvas.width, Math.random()*canvas.height);
-        ctx.lineTo(Math.random()*canvas.width, Math.random()*canvas.height);
+        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
         ctx.stroke();
       }
 
-      // Canvas als Video-Stream setzen
-      video.srcObject = canvas.captureStream(30); // 30 FPS
       requestAnimationFrame(generateFrame);
     }
 
     generateFrame();
-
-    // Fenstergröße dynamisch anpassen
-    window.addEventListener('resize', () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    });
   </script>
 
 </body>
