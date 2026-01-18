@@ -6,8 +6,8 @@ app.use(express.json());
 
 const GITHUB_TOKEN = process.env.MY_TOKEN; // <-- hier
 
-const REPO_OWNER = "DEIN_GITHUB_USER";
-const REPO_NAME = "DEIN_REPO";
+const REPO_OWNER = "Kalirusi5511";
+const REPO_NAME = "dunkler-musik-player";
 
 app.post("/create-issue", async (req, res) => {
   const { title, body } = req.body;
