@@ -34,6 +34,24 @@
       text-align: center;
     }
 
+    /* Größere Player-Buttons */
+    #audio-player button {
+      background: rgba(80,0,0,0.85);
+      border: none;
+      color: white;
+      padding: 16px 36px;
+      margin: 10px;
+      cursor: pointer;
+      font-size: 22px;
+      border-radius: 6px;
+    }
+
+    #audio-player button:hover {
+      background: rgba(150,0,0,0.9);
+      transform: scale(1.05);
+    }
+
+    /* Allgemeine Buttons */
     button {
       background: rgba(50,50,50,0.7);
       border: none;
@@ -67,7 +85,7 @@
       border: 1px solid darkred;
       padding: 20px;
       color: white;
-      width: 320px;
+      width: 340px;
       z-index: 20;
     }
 
@@ -77,7 +95,6 @@
       text-align: center;
     }
 
-    #bug-form input,
     #bug-form textarea {
       width: 100%;
       margin-bottom: 10px;
@@ -85,9 +102,6 @@
       color: white;
       border: 1px solid #444;
       padding: 6px;
-    }
-
-    #bug-form textarea {
       height: 90px;
       resize: none;
     }
@@ -105,7 +119,6 @@
   <div id="bug-form">
     <h2>Bug melden</h2>
 
-    <input id="bug-title" placeholder="Kurzer Bug-Titel" required>
     <textarea id="bug-desc" placeholder="Was ist passiert? Wie kann man es reproduzieren?" required></textarea>
 
     <button onclick="submitBug()">Absenden</button>
@@ -114,8 +127,8 @@
 
   <!-- AUDIO PLAYER -->
   <div id="audio-player">
-    <button onclick="playAudio()">Play</button>
-    <button onclick="pauseAudio()">Pause</button>
+    <button onclick="playAudio()">▶ Play</button>
+    <button onclick="pauseAudio()">⏸ Pause</button>
   </div>
 
   <audio id="music" src="epic-battle-music.mp3"></audio>
@@ -165,33 +178,32 @@
       form.style.display = form.style.display === 'block' ? 'none' : 'block';
     }
 
+    /* FINAL submitBug() */
     function submitBug() {
-      const title = document.getElementById('bug-title').value.trim();
       const desc = document.getElementById('bug-desc').value.trim();
 
-      if (!title || !desc) {
-        alert("Bitte Titel und Beschreibung ausfüllen.");
+      if (!desc) {
+        alert("Bitte beschreibe den Bug.");
         return;
       }
 
-      const body = `
-**Beschreibung**
-${desc}
+      const body =
+`🕒 Zeit:
+${new Date().toISOString()}
 
-**Browser / System**
+🌐 Browser:
 ${navigator.userAgent}
 
-**Zeit**
-${new Date().toISOString()}
+🧾 Beschreibung:
+${desc}
 `;
 
       const url =
         "https://github.com/Kalirusi5511/dunkler-musik-player/issues/new" +
-        "?title=" + encodeURIComponent("[BUG-FORM] " + title) +
+        "?title=" + encodeURIComponent("[BUG-FORM] Bug Report") +
         "&body=" + encodeURIComponent(body);
 
-      window.open(url, "_blank");
-      toggleBugForm();
+      window.location.href = url;
     }
   </script>
 
