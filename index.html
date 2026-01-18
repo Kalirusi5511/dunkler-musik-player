@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Düsterer Musik-Player</title>
+
   <style>
     html, body {
       margin: 0;
@@ -10,8 +11,10 @@
       height: 100%;
       overflow: hidden;
       background: black;
+      font-family: sans-serif;
     }
 
+    /* Hintergrund */
     #bg-canvas {
       position: fixed;
       top: 0;
@@ -21,13 +24,13 @@
       z-index: -1;
     }
 
+    /* Player */
     #audio-player {
       position: absolute;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
       color: white;
-      font-family: sans-serif;
       text-align: center;
     }
 
@@ -42,14 +45,74 @@
     }
 
     button:hover {
-      background: rgba(100,0,0,0.7);
+      background: rgba(120,0,0,0.8);
+    }
+
+    /* BUG BUTTON */
+    #bug-open {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10;
+    }
+
+    /* BUG FORM */
+    #bug-form {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.95);
+      border: 1px solid darkred;
+      padding: 20px;
+      color: white;
+      width: 320px;
+      z-index: 20;
+    }
+
+    #bug-form h2 {
+      margin-top: 0;
+      color: darkred;
+      text-align: center;
+    }
+
+    #bug-form input,
+    #bug-form textarea {
+      width: 100%;
+      margin-bottom: 10px;
+      background: #111;
+      color: white;
+      border: 1px solid #444;
+      padding: 6px;
+    }
+
+    #bug-form textarea {
+      height: 90px;
+      resize: none;
     }
   </style>
 </head>
 <body>
 
+  <!-- Hintergrund -->
   <canvas id="bg-canvas"></canvas>
 
+  <!-- BUG BUTTON -->
+  <button id="bug-open" onclick="toggleBugForm()">🐛 Bug melden</button>
+
+  <!-- BUG FORM -->
+  <div id="bug-form">
+    <h2>Bug melden</h2>
+
+    <input id="bug-title" placeholder="Kurzer Bug-Titel" required>
+    <textarea id="bug-desc" placeholder="Was ist passiert? Wie kann man es reproduzieren?" required></textarea>
+
+    <button onclick="submitBug()">Absenden</button>
+    <button onclick="toggleBugForm()">Abbrechen</button>
+  </div>
+
+  <!-- AUDIO PLAYER -->
   <div id="audio-player">
     <button onclick="playAudio()">Play</button>
     <button onclick="pauseAudio()">Pause</button>
@@ -58,7 +121,18 @@
   <audio id="music" src="epic-battle-music.mp3"></audio>
 
   <script>
+    /* AUDIO */
     const audio = document.getElementById('music');
+
+    function playAudio() {
+      audio.play();
+    }
+
+    function pauseAudio() {
+      audio.pause();
+    }
+
+    /* CANVAS */
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
 
@@ -69,20 +143,10 @@
     resize();
     window.addEventListener('resize', resize);
 
-    function playAudio() {
-      audio.play();
-    }
-
-    function pauseAudio() {
-      audio.pause();
-    }
-
     function generateFrame() {
-      // dunkler Hintergrund
       ctx.fillStyle = 'rgba(0,0,0,0.4)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Partikel/Lines
       for (let i = 0; i < 50; i++) {
         ctx.strokeStyle = `rgba(${Math.random()*40},0,0,0.6)`;
         ctx.beginPath();
@@ -93,8 +157,42 @@
 
       requestAnimationFrame(generateFrame);
     }
-
     generateFrame();
+
+    /* BUG FORM */
+    function toggleBugForm() {
+      const form = document.getElementById('bug-form');
+      form.style.display = form.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function submitBug() {
+      const title = document.getElementById('bug-title').value.trim();
+      const desc = document.getElementById('bug-desc').value.trim();
+
+      if (!title || !desc) {
+        alert("Bitte Titel und Beschreibung ausfüllen.");
+        return;
+      }
+
+      const body = `
+**Beschreibung**
+${desc}
+
+**Browser / System**
+${navigator.userAgent}
+
+**Zeit**
+${new Date().toISOString()}
+`;
+
+      const url =
+        "https://github.com/Kalirusi5511/dunkler-musik-player/issues/new" +
+        "?title=" + encodeURIComponent("[BUG-FORM] " + title) +
+        "&body=" + encodeURIComponent(body);
+
+      window.open(url, "_blank");
+      toggleBugForm();
+    }
   </script>
 
 </body>
