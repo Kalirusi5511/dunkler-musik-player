@@ -4,10 +4,14 @@ const axios = require("axios");
 const app = express();
 app.use(express.json());
 
-const GITHUB_TOKEN = process.env.MY_TOKEN; // <-- hier
+const GITHUB_TOKEN = process.env.MY_TOKEN;
 
 const REPO_OWNER = "Kalirusi5511";
 const REPO_NAME = "dunkler-musik-player";
+
+app.get("/", (req, res) => {
+  res.send("Server läuft");
+});
 
 app.post("/create-issue", async (req, res) => {
   const { title, body } = req.body;
