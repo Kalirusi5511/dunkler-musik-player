@@ -13,7 +13,6 @@ body {
   overflow:hidden;
 }
 
-/* CANVAS */
 #bg-canvas {
   position:fixed;
   width:100%;
@@ -21,7 +20,6 @@ body {
   z-index:-1;
 }
 
-/* PLAYER BOX */
 .player {
   position:absolute;
   bottom:20px;
@@ -34,7 +32,6 @@ body {
   text-align:center;
 }
 
-/* BUTTONS */
 button {
   background:rgba(80,0,0,0.8);
   border:none;
@@ -49,26 +46,15 @@ button:hover {
   background:rgba(150,0,0,0.9);
 }
 
-/* PROGRESS */
+/* AKTIVER LOOP BUTTON */
+button.active {
+  background:rgba(200,0,0,1);
+}
+
 #progress {
   width:100%;
 }
 
-/* VIDEO */
-#video-container {
-  position:absolute;
-  bottom:180px;
-  left:50%;
-  transform:translateX(-50%);
-  width:420px;
-}
-
-video {
-  width:100%;
-  border-radius:10px;
-}
-
-/* PLAYLIST */
 #playlist {
   max-height:100px;
   overflow-y:auto;
@@ -84,7 +70,6 @@ video {
   background:rgba(255,0,0,0.3);
 }
 
-/* BUG BUTTON */
 #bug-open {
   position:fixed;
   top:20px;
@@ -116,14 +101,6 @@ video {
   <button onclick="toggleBugForm()">Close</button>
 </div>
 
-<!-- VIDEO -->
-<div id="video-container">
-  <video id="video" controls>
-    <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-  </video>
-</div>
-
-<!-- PLAYER -->
 <div class="player">
 
   <div>
@@ -131,7 +108,7 @@ video {
     <button onclick="play()">▶</button>
     <button onclick="pause()">⏸</button>
     <button onclick="next()">⏭</button>
-    <button onclick="toggleLoop()">🔁</button>
+    <button id="loopBtn" onclick="toggleLoop()">🔁</button>
   </div>
 
   <input type="range" id="progress" value="0">
@@ -148,7 +125,7 @@ video {
 
 <script>
 
-/* TRACKLIST */
+/* TRACKS */
 const tracks = [
   {
     name:"Epic Battle",
@@ -161,9 +138,15 @@ const tracks = [
 ];
 
 let index = 0;
-const audio = document.getElementById("audio");
+let loopMode = 0; 
+// 0 = kein Loop
+// 1 = Track Loop
+// 2 = Playlist Loop
 
-/* LOAD TRACK */
+const audio = document.getElementById("audio");
+const loopBtn = document.getElementById("loopBtn");
+
+/* LOAD */
 function loadTrack(i){
   index = i;
   audio.src = tracks[i].src;
@@ -175,21 +158,56 @@ function play(){ audio.play(); }
 function pause(){ audio.pause(); }
 
 function next(){
-  index = (index+1)%tracks.length;
+  if(index < tracks.length-1){
+    index++;
+  } else if(loopMode === 2){
+    index = 0;
+  } else {
+    return;
+  }
   loadTrack(index);
   play();
 }
 
 function prev(){
-  index = (index-1+tracks.length)%tracks.length;
+  if(index > 0){
+    index--;
+  } else if(loopMode === 2){
+    index = tracks.length-1;
+  } else {
+    return;
+  }
   loadTrack(index);
   play();
 }
 
-/* LOOP */
+/* LOOP MODES */
 function toggleLoop(){
-  audio.loop = !audio.loop;
+  loopMode = (loopMode + 1) % 3;
+
+  if(loopMode === 0){
+    audio.loop = false;
+    loopBtn.classList.remove("active");
+    loopBtn.innerText = "🔁";
+  }
+  else if(loopMode === 1){
+    audio.loop = true;
+    loopBtn.classList.add("active");
+    loopBtn.innerText = "🔂"; // Track Loop
+  }
+  else{
+    audio.loop = false;
+    loopBtn.classList.add("active");
+    loopBtn.innerText = "🔁📃"; // Playlist Loop
+  }
 }
+
+/* AUTO NEXT */
+audio.addEventListener("ended",()=>{
+  if(loopMode === 0 || loopMode === 2){
+    next();
+  }
+});
 
 /* PROGRESS */
 const progress = document.getElementById("progress");
@@ -211,7 +229,7 @@ volume.addEventListener("input",()=>{
   audio.volume = volume.value;
 });
 
-/* PLAYLIST UI */
+/* PLAYLIST */
 function renderPlaylist(){
   const list = document.getElementById("playlist");
   list.innerHTML="";
