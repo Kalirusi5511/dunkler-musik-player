@@ -1,268 +1,279 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>Düsterer Musik-Player</title>
+<meta charset="UTF-8" />
+<title>Dark Player Pro</title>
 
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      overflow: hidden;
-      background: black;
-      font-family: sans-serif;
-    }
+<style>
+body {
+  margin:0;
+  background:black;
+  color:white;
+  font-family:sans-serif;
+  overflow:hidden;
+}
 
-    /* Hintergrund */
-    #bg-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-    }
+/* CANVAS */
+#bg-canvas {
+  position:fixed;
+  width:100%;
+  height:100%;
+  z-index:-1;
+}
 
-    /* Player */
-    #audio-player {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: white;
-      text-align: center;
-      z-index: 10;
-    }
+/* PLAYER BOX */
+.player {
+  position:absolute;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  width:420px;
+  background:rgba(0,0,0,0.7);
+  padding:15px;
+  border-radius:10px;
+  text-align:center;
+}
 
-    /* Video Player Container */
-    #video-player-container {
-      position: absolute;
-      bottom: 120px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 400px;
-      color: white;
-      text-align: center;
-      z-index: 10;
-    }
+/* BUTTONS */
+button {
+  background:rgba(80,0,0,0.8);
+  border:none;
+  color:white;
+  padding:10px 15px;
+  margin:5px;
+  cursor:pointer;
+  border-radius:6px;
+}
 
-    #video-player-container video {
-      width: 100%;
-      border-radius: 8px;
-      background: black;
-      outline: none;
-    }
+button:hover {
+  background:rgba(150,0,0,0.9);
+}
 
-    #video-player-controls button {
-      background: rgba(80,0,0,0.85);
-      border: none;
-      color: white;
-      padding: 10px 20px;
-      margin: 0 10px;
-      font-size: 22px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.3s ease, transform 0.2s ease;
-    }
+/* PROGRESS */
+#progress {
+  width:100%;
+}
 
-    #video-player-controls button:hover {
-      background: rgba(150,0,0,0.9);
-      transform: scale(1.05);
-    }
+/* VIDEO */
+#video-container {
+  position:absolute;
+  bottom:180px;
+  left:50%;
+  transform:translateX(-50%);
+  width:420px;
+}
 
-    /* Größere Player-Buttons */
-    #audio-player button {
-      background: rgba(80,0,0,0.85);
-      border: none;
-      color: white;
-      padding: 16px 36px;
-      margin: 10px;
-      cursor: pointer;
-      font-size: 22px;
-      border-radius: 6px;
-      transition: background 0.3s ease, transform 0.2s ease;
-    }
+video {
+  width:100%;
+  border-radius:10px;
+}
 
-    #audio-player button:hover {
-      background: rgba(150,0,0,0.9);
-      transform: scale(1.05);
-    }
+/* PLAYLIST */
+#playlist {
+  max-height:100px;
+  overflow-y:auto;
+  margin-top:10px;
+}
 
-    /* Allgemeine Buttons */
-    button {
-      background: rgba(50,50,50,0.7);
-      border: none;
-      color: white;
-      padding: 10px 20px;
-      margin: 5px;
-      cursor: pointer;
-      font-size: 16px;
-    }
+.track {
+  cursor:pointer;
+  padding:5px;
+}
 
-    button:hover {
-      background: rgba(120,0,0,0.8);
-    }
+.track:hover {
+  background:rgba(255,0,0,0.3);
+}
 
-    /* BUG BUTTON */
-    #bug-open {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 20;
-    }
+/* BUG BUTTON */
+#bug-open {
+  position:fixed;
+  top:20px;
+  right:20px;
+}
 
-    /* BUG FORM */
-    #bug-form {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0,0,0,0.95);
-      border: 1px solid darkred;
-      padding: 20px;
-      color: white;
-      width: 340px;
-      z-index: 30;
-    }
-
-    #bug-form h2 {
-      margin-top: 0;
-      color: darkred;
-      text-align: center;
-    }
-
-    #bug-form textarea {
-      width: 100%;
-      margin-bottom: 10px;
-      background: #111;
-      color: white;
-      border: 1px solid #444;
-      padding: 6px;
-      height: 90px;
-      resize: none;
-    }
-  </style>
+#bug-form {
+  display:none;
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  background:black;
+  padding:20px;
+  border:1px solid red;
+}
+</style>
 </head>
+
 <body>
 
-  <!-- Hintergrund -->
-  <canvas id="bg-canvas"></canvas>
+<canvas id="bg-canvas"></canvas>
 
-  <!-- BUG BUTTON -->
-  <button id="bug-open" onclick="toggleBugForm()">🐛 Bug melden</button>
+<button id="bug-open" onclick="toggleBugForm()">🐛</button>
 
-  <!-- BUG FORM -->
-  <div id="bug-form">
-    <h2>Bug melden</h2>
+<div id="bug-form">
+  <textarea id="bug-desc" placeholder="Bug beschreiben..."></textarea>
+  <button onclick="submitBug()">Senden</button>
+  <button onclick="toggleBugForm()">Close</button>
+</div>
 
-    <textarea id="bug-desc" placeholder="Was ist passiert? Wie kann man es reproduzieren?" required></textarea>
+<!-- VIDEO -->
+<div id="video-container">
+  <video id="video" controls>
+    <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+  </video>
+</div>
 
-    <button onclick="submitBug()">Absenden</button>
-    <button onclick="toggleBugForm()">Abbrechen</button>
+<!-- PLAYER -->
+<div class="player">
+
+  <div>
+    <button onclick="prev()">⏮</button>
+    <button onclick="play()">▶</button>
+    <button onclick="pause()">⏸</button>
+    <button onclick="next()">⏭</button>
+    <button onclick="toggleLoop()">🔁</button>
   </div>
 
-  <!-- VIDEO PLAYER -->
-  <div id="video-player-container">
-    <video id="videoPlayer" controls>
-      <source src="your-video.mp4" type="video/mp4" />
-      Ihr Browser unterstützt kein Video-Tag.
-    </video>
-    <div id="video-player-controls" style="margin-top: 8px;">
-      <button onclick="seekVideo(-10)">⏮</button>
-      <button onclick="seekVideo(10)">⏭</button>
-    </div>
+  <input type="range" id="progress" value="0">
+
+  <div>
+    🔊 <input type="range" id="volume" min="0" max="1" step="0.01">
   </div>
 
-  <!-- AUDIO PLAYER -->
-  <div id="audio-player">
-    <button onclick="playAudio()">▶ Play</button>
-    <button onclick="pauseAudio()">⏸ Pause</button>
-  </div>
+  <div id="playlist"></div>
 
-  <audio id="music" src="epic-battle-music.mp3"></audio>
+</div>
 
-  <script>
-    /* AUDIO */
-    const audio = document.getElementById('music');
+<audio id="audio"></audio>
 
-    function playAudio() {
-      audio.play();
-    }
+<script>
 
-    function pauseAudio() {
-      audio.pause();
-    }
+/* TRACKLIST */
+const tracks = [
+  {
+    name:"Epic Battle",
+    src:"https://raw.githubusercontent.com/Kalirusi5511/dunkler-musik-player/main/epic-battle-music.mp3"
+  },
+  {
+    name:"Test Track",
+    src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+  }
+];
 
-    /* VIDEO */
-    function seekVideo(seconds) {
-      const video = document.getElementById('videoPlayer');
-      if (!video) return;
-      video.currentTime = Math.min(Math.max(0, video.currentTime + seconds), video.duration);
-    }
+let index = 0;
+const audio = document.getElementById("audio");
 
-    /* CANVAS */
-    const canvas = document.getElementById('bg-canvas');
-    const ctx = canvas.getContext('2d');
+/* LOAD TRACK */
+function loadTrack(i){
+  index = i;
+  audio.src = tracks[i].src;
+  renderPlaylist();
+}
 
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    resize();
-    window.addEventListener('resize', resize);
+/* CONTROLS */
+function play(){ audio.play(); }
+function pause(){ audio.pause(); }
 
-    function generateFrame() {
-      ctx.fillStyle = 'rgba(0,0,0,0.4)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+function next(){
+  index = (index+1)%tracks.length;
+  loadTrack(index);
+  play();
+}
 
-      for (let i = 0; i < 50; i++) {
-        ctx.strokeStyle = `rgba(${Math.random()*40},0,0,0.6)`;
-        ctx.beginPath();
-        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
-        ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
-        ctx.stroke();
-      }
+function prev(){
+  index = (index-1+tracks.length)%tracks.length;
+  loadTrack(index);
+  play();
+}
 
-      requestAnimationFrame(generateFrame);
-    }
-    generateFrame();
+/* LOOP */
+function toggleLoop(){
+  audio.loop = !audio.loop;
+}
 
-    /* BUG FORM */
-    function toggleBugForm() {
-      const form = document.getElementById('bug-form');
-      form.style.display = form.style.display === 'block' ? 'none' : 'block';
-    }
+/* PROGRESS */
+const progress = document.getElementById("progress");
 
-    /* FINAL submitBug() */
-    function submitBug() {
-      const desc = document.getElementById('bug-desc').value.trim();
+audio.addEventListener("timeupdate",()=>{
+  progress.value = (audio.currentTime / audio.duration)*100 || 0;
+});
 
-      if (!desc) {
-        alert("Bitte beschreibe den Bug.");
-        return;
-      }
+progress.addEventListener("input",()=>{
+  audio.currentTime = (progress.value/100)*audio.duration;
+});
 
-      const body =
-`🕒 Zeit:
-${new Date().toISOString()}
+/* VOLUME */
+const volume = document.getElementById("volume");
+volume.value = 0.5;
+audio.volume = 0.5;
 
-🌐 Browser:
-${navigator.userAgent}
+volume.addEventListener("input",()=>{
+  audio.volume = volume.value;
+});
 
-🧾 Beschreibung:
-${desc}
-`;
+/* PLAYLIST UI */
+function renderPlaylist(){
+  const list = document.getElementById("playlist");
+  list.innerHTML="";
+  
+  tracks.forEach((t,i)=>{
+    const div=document.createElement("div");
+    div.className="track";
+    div.innerText=(i===index?"▶ ":"")+t.name;
+    div.onclick=()=>{
+      loadTrack(i);
+      play();
+    };
+    list.appendChild(div);
+  });
+}
 
-      const url =
-        "https://github.com/Kalirusi5511/dunkler-musik-player/issues/new" +
-        "?title=" + encodeURIComponent("[BUG-FORM] Bug Report") +
-        "&body=" + encodeURIComponent(body);
+/* BUG */
+function toggleBugForm(){
+  const f=document.getElementById("bug-form");
+  f.style.display=f.style.display==="block"?"none":"block";
+}
 
-      window.location.href = url;
-    }
-  </script>
+function submitBug(){
+  const desc=document.getElementById("bug-desc").value;
+  if(!desc) return alert("Beschreibe den Bug");
+
+  const url="https://github.com/Kalirusi5511/dunkler-musik-player/issues/new?body="+encodeURIComponent(desc);
+  window.location.href=url;
+}
+
+/* CANVAS */
+const canvas=document.getElementById("bg-canvas");
+const ctx=canvas.getContext("2d");
+
+function resize(){
+  canvas.width=window.innerWidth;
+  canvas.height=window.innerHeight;
+}
+resize();
+window.addEventListener("resize",resize);
+
+function draw(){
+  ctx.fillStyle="rgba(0,0,0,0.3)";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  for(let i=0;i<30;i++){
+    ctx.strokeStyle="rgba(255,0,0,0.2)";
+    ctx.beginPath();
+    ctx.moveTo(Math.random()*canvas.width,Math.random()*canvas.height);
+    ctx.lineTo(Math.random()*canvas.width,Math.random()*canvas.height);
+    ctx.stroke();
+  }
+
+  requestAnimationFrame(draw);
+}
+draw();
+
+/* INIT */
+loadTrack(0);
+renderPlaylist();
+
+</script>
 
 </body>
 </html>
