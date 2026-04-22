@@ -32,6 +32,43 @@
       transform: translateX(-50%);
       color: white;
       text-align: center;
+      z-index: 10;
+    }
+
+    /* Video Player Container */
+    #video-player-container {
+      position: absolute;
+      bottom: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 400px;
+      color: white;
+      text-align: center;
+      z-index: 10;
+    }
+
+    #video-player-container video {
+      width: 100%;
+      border-radius: 8px;
+      background: black;
+      outline: none;
+    }
+
+    #video-player-controls button {
+      background: rgba(80,0,0,0.85);
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      margin: 0 10px;
+      font-size: 22px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    #video-player-controls button:hover {
+      background: rgba(150,0,0,0.9);
+      transform: scale(1.05);
     }
 
     /* Größere Player-Buttons */
@@ -44,6 +81,7 @@
       cursor: pointer;
       font-size: 22px;
       border-radius: 6px;
+      transition: background 0.3s ease, transform 0.2s ease;
     }
 
     #audio-player button:hover {
@@ -71,7 +109,7 @@
       position: fixed;
       top: 20px;
       right: 20px;
-      z-index: 10;
+      z-index: 20;
     }
 
     /* BUG FORM */
@@ -86,7 +124,7 @@
       padding: 20px;
       color: white;
       width: 340px;
-      z-index: 20;
+      z-index: 30;
     }
 
     #bug-form h2 {
@@ -125,6 +163,18 @@
     <button onclick="toggleBugForm()">Abbrechen</button>
   </div>
 
+  <!-- VIDEO PLAYER -->
+  <div id="video-player-container">
+    <video id="videoPlayer" controls>
+      <source src="your-video.mp4" type="video/mp4" />
+      Ihr Browser unterstützt kein Video-Tag.
+    </video>
+    <div id="video-player-controls" style="margin-top: 8px;">
+      <button onclick="seekVideo(-10)">⏮</button>
+      <button onclick="seekVideo(10)">⏭</button>
+    </div>
+  </div>
+
   <!-- AUDIO PLAYER -->
   <div id="audio-player">
     <button onclick="playAudio()">▶ Play</button>
@@ -143,6 +193,13 @@
 
     function pauseAudio() {
       audio.pause();
+    }
+
+    /* VIDEO */
+    function seekVideo(seconds) {
+      const video = document.getElementById('videoPlayer');
+      if (!video) return;
+      video.currentTime = Math.min(Math.max(0, video.currentTime + seconds), video.duration);
     }
 
     /* CANVAS */
